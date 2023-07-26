@@ -13,7 +13,7 @@ rp_module_id="duckstation"
 rp_module_desc="PlayStation emulator DuckStation"
 rp_module_help="ROM Extensions: .pbp .cue .bin .chd .img .ecm .mds .mdf\n\nCopy your PlayStation roms to $romdir/psx\n\nCopy the required BIOS file to $biosdir"
 rp_module_licence="GPL3 https://raw.githubusercontent.com/stenzek/duckstation/master/LICENSE"
-rp_module_repo="git https://github.com/stenzek/duckstation.git latest"
+rp_module_repo="git https://github.com/stenzek/duckstation.git legacy"
 rp_module_section="exp"
 rp_module_flags=""
 
