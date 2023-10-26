@@ -311,6 +311,11 @@ function get_os_version() {
 
     [[ -n "$error" ]] && fatalError "$error\n\n$(lsb_release -idrc)"
 
+    # check for Armbian, which can be built on Debian/Ubuntu
+    if [[ -f /etc/armbian-release ]]; then
+        __platform_flags+=("armbian")
+    fi
+
     # configure Raspberry Pi graphics stack
     isPlatform "rpi" && get_rpi_video
 }
@@ -396,6 +401,9 @@ function get_platform() {
                             ;;
                         3)
                             __platform="rpi4"
+                            ;;
+                        4)
+                            __platform="rpi5"
                             ;;
                     esac
                 fi
@@ -565,6 +573,11 @@ function platform_rpi3() {
 
 function platform_rpi4() {
     cpu_armv8 "cortex-a72"
+    __platform_flags+=(rpi gles gles3 gles31)
+}
+
+function platform_rpi5() {
+    cpu_armv8 "cortex-a76"
     __platform_flags+=(rpi gles gles3 gles31)
 }
 

@@ -248,7 +248,23 @@ function _mapPackage() {
         # handle our custom package alias LINUX-HEADERS
         LINUX-HEADERS)
             if isPlatform "rpi"; then
-                pkg="raspberrypi-kernel-headers"
+                if [[ "$__os_debian_ver" -lt 12 ]]; then
+                    pkg="raspberrypi-kernel-headers"
+                else
+                    # on RaspiOS bookworm and later, kernel packages are separated by arch and model
+                    isPlatform "rpi0" || isPlatform "rpi1" && pkg="linux-headers-rpi-v6"
+                    if isPlatform "32bit"; then
+                        isPlatform "rpi2" || isPlatform "rpi3" && pkg="linux-headers-rpi-v7"
+                        isPlatform "rpi4" && pkg="linux-headers-rpi-v7l"
+                    else
+                        isPlatform "rpi3" || isPlatform "rpi4" && pkg="linux-headers-rpi-v8"
+                        isPlatform "rpi5" && pkg="linux-headers-rpi-2712"
+                    fi
+                fi
+            elif isPlatform "armbian"; then
+                local branch="$(grep -oP "BRANCH=\K.*"      /etc/armbian-release)"
+                local family="$(grep -oP "LINUXFAMILY=\K.*" /etc/armbian-release)"
+                pkg="linux-headers-${branch}-${family}"
             elif [[ -z "$__os_ubuntu_ver" ]]; then
                 pkg="linux-headers-$(uname -r)"
             else
@@ -279,6 +295,9 @@ function _mapPackage() {
                 fi
                 [[ "$own_sdl2" -eq 1 ]] && pkg="RP sdl2 $pkg"
             fi
+            ;;
+        libfreetype6-dev)
+            [[ "$__os_debian_ver" -gt 10 ]] || compareVersions "$__os_ubuntu_ver" gt 23.04 && pkg="libfreetype-dev"
             ;;
     esac
     echo "$pkg"

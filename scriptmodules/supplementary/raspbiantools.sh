@@ -34,8 +34,14 @@ function lxde_raspbiantools() {
        aptInstall lxplug-volume
     fi
 
+    # Firefox is supported starting with Bookworm, install it along with Chromium
+    [[ "$__os_debian_ver" -ge 12 ]] && aptInstall --no-install-recommends firefox rpi-firefox-mods
+
     setConfigRoot "ports"
     addPort "lxde" "lxde" "Desktop" "XINIT:startx"
+    if (isPlatform "rpi4" || isPlatform "rpi5")  && [[ "$__os_debian_ver" -ge 12 ]]; then
+        addPort "wayfire" "wayfire" "Desktop (Wayland)" "wayfire-pi"
+    fi
     enable_autostart
 }
 
@@ -164,8 +170,10 @@ function gui_raspbiantools() {
             3 "Remove some unneeded packages (pulseaudio / cups / wolfram)"
             4 "Disable screen blanker"
             5 "Enable needed kernel module uinput"
-            6 "$zram_status compressed memory (ZRAM)"
         )
+        # exclude ZRAM config for Armbian, it is handled by `armbian-config`
+        ! isPlatform "armbian" && options+=(6 "$zram_status compressed memory (ZRAM)")
+
         local choice=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
         if [[ -n "$choice" ]]; then
             case "$choice" in
